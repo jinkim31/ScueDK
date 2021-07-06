@@ -1,6 +1,11 @@
-# ScueDK-ROS
+# ScueDK
 Embedded communication &amp; data access library for Scue.
 
-## Download & Build
-
-## d
+## ROS
+### Download & Build
+```
+cd ~/catkin_ws/src
+git clone https://github.com/jinkim31/ScueDK.git
+cm
+```
+### Include
