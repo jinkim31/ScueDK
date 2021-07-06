@@ -29,7 +29,7 @@ namespace scue {
 typedef struct _Slave1
 {
 	int a,b,c;
-	int test;
+	int test; 
 }Slave1;
 
 typedef struct _Slave2
