@@ -50,7 +50,6 @@ public:
     d.address = (uint8_t*)&target-(uint8_t*)&ref;
     if(d.address < 0 || sizeof(ref) < d.address)
     {
-      //std::cout<<"[ScueDK] WARNING: method \'set(T &target, Wildcard value)\' is not being used properly. parameter \'target\' must be a member variable of struct \'ref\'. Request ignored."<<std::endl;
       ROS_WARN("[ScueDK] WARNING: method \'set(T &target, Wildcard value)\' is not being used properly. parameter \'target\' must be a member variable of struct \'ref\'. Request ignored.");
       return;
     }
@@ -74,7 +73,6 @@ public:
     int address = (uint8_t*)&target-(uint8_t*)&ref;
     if(address < 0 || sizeof(ref) < address)
     {
-      //std::cout<<"[ScueDK] WARNING: method \'get(T &target)\' is not being used properly. parameter \'target\' must be a member variable of struct \'ref\'. Request ignored."<<std::endl;
       ROS_WARN("[ScueDK] WARNING: method \'get(T &target)\' is not being used properly. parameter \'target\' must be a member variable of struct \'ref\'. Request ignored.");
       return (T)0;
     }
@@ -146,7 +144,6 @@ private:
   MasterStruct data;
   void scueReadCallback(const std_msgs::ByteMultiArray &msg)
   {
-    //qDebug()<<msg.data.size() <<"/"<<sizeof (refDataStruct);
     if(msg.data.size() == sizeof (data))
     {
       memcpy(&data, msg.data.data(), sizeof (data));
