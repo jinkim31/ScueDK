@@ -19,7 +19,7 @@ find_package(catkin REQUIRED qt_build roscpp scuedk)
 #include "schedk.h"
 ```
 
-## STM32
+## Embedded master
 ### Clone source
 ```
 cd <your project dir (not Core!)>
