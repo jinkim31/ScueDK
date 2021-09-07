@@ -22,7 +22,7 @@ find_package(catkin REQUIRED qt_build roscpp scuedk)
 ## STM32
 ### Clone source
 ```
-cd <your project dir>
+cd <your project dir (not Core!)>
 git clone https://github.com/jinkim31/ScueDK.git scuedk
 ```
 ### Include
