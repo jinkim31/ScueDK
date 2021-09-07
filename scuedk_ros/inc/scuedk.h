@@ -17,7 +17,7 @@
 #include <vector>
 #include <iostream>
 #include <std_msgs/ByteMultiArray.h>
-#include "../structs/structs.h"
+#include "../../structs/structs.h"
 
 using namespace std;
 namespace scue{

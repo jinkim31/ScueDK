@@ -6,7 +6,7 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
 )
 catkin_package(
-  INCLUDE_DIRS inc
+  INCLUDE_DIRS scuedk_ros/inc
   LIBRARIES ${PROJECT_NAME}
   CATKIN_DEPENDS roscpp std_msgs
 )
@@ -15,7 +15,7 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 add_library(${PROJECT_NAME}
-  src/scuedk.cpp
+  scuedk_ros/src/scuedk.cpp
   structs/structs.c
 )
 target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
