@@ -5,6 +5,7 @@ Embedded communication &amp; data access library for Scue.
 ### Build
 ```
 cd ~/catkin_ws/src
+git clone https://github.com/wjwwood/serial.git
 git clone https://github.com/jinkim31/ScueDK.git scuedk
 cm
 ```
