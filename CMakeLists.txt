@@ -4,6 +4,7 @@ project(scuedk)
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   std_msgs
+  serial
 )
 catkin_package(
   INCLUDE_DIRS scuedk_ros/inc
@@ -14,10 +15,18 @@ include_directories(
   include
   ${catkin_INCLUDE_DIRS}
 )
+add_executable(serial_line
+                serial_line/src/main.cpp
+                serial_line/src/node.cpp
+                serial_line/src/packetgenerator.cpp
+                serial_line/src/packettranslator.cpp
+                serial_line/src/Util.cpp
+                )
 add_library(${PROJECT_NAME}
   scuedk_ros/src/scuedk.cpp
   structs/structs.c
 )
+target_link_libraries(serial_line ${catkin_LIBRARIES} serial)
 target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
 install(
   TARGETS ${PROJECT_NAME}

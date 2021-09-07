@@ -5,7 +5,7 @@
  *      Author: Jin Kim
  */
 
-#include "../include/serial_line/Util.h"
+#include "../inc/Util.h"
 
 Util::Util() {
 	// TODO Auto-generated constructor stub

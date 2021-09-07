@@ -3,10 +3,9 @@
 
 #define PACKET_BUFFER_SIZE 500
 
-#include <QByteArray>
+#include <iostream>
 #include "sensor_msgs/JointState.h"
 #include "config.h"
-#include <QDebug>
 #include "Util.h"
 
 namespace serial_line

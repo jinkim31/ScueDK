@@ -1,4 +1,4 @@
-#include"../include/serial_line/packetgenerator.h"
+#include"../inc/packetgenerator.h"
 
 namespace serial_line
 {
@@ -12,7 +12,7 @@ PacketGenerator::~PacketGenerator()
 {
 }
 
-QByteArray PacketGenerator::generatePacket()
+ByteArray PacketGenerator::generatePacket()
 {
   vector<DataChange> uniqueDataChangeList;
 
@@ -34,40 +34,40 @@ QByteArray PacketGenerator::generatePacket()
     if(isUnique) uniqueDataChangeList.push_back(d);
   }
 
-  cout<<duplicate<<" duplicate(s) filtered out."<<endl;
+  //cout<<duplicate<<" duplicate(s) filtered out."<<endl;
 
 
-  QByteArray packet;
+  ByteArray packet;
 
   //header
-  packet.append(0xff);
-  packet.append(0xff);
-  packet.append(0xfd);
-  packet.append((int)0x00);
+  packet.push_back(0xff);
+  packet.push_back(0xff);
+  packet.push_back(0xfd);
+  packet.push_back((int)0x00);
 
   //id
-  packet.append(0xfe);
+  packet.push_back(0xfe);
 
   //length
-  packet.append(0x01); //length 1 placeholder. valid value is set by setLength();
-  packet.append(0x01); //length 2 placeholder. valid value is set by setLength();
+  packet.push_back(0x01); //length 1 placeholder. valid value is set by setLength();
+  packet.push_back(0x01); //length 2 placeholder. valid value is set by setLength();
 
   //instruction
-  packet.append(0xde);
+  packet.push_back(0xde);
 
   //parameter
   for(DataChange d : uniqueDataChangeList)
   {
-    qDebug()<<"generating packet : address : "<<d.address;
+    //cout<<"generating packet : address : "<<d.address<<endl;
 
-    packet.append(d.address &0xff);
-    packet.append((d.address>>8) & 0xff);
+    packet.push_back(d.address &0xff);
+    packet.push_back((d.address>>8) & 0xff);
 
-    packet.append(d.data.size());
+    packet.push_back(d.data.size());
 
     for(uint8_t byte : d.data)
     {
-      packet.append(byte);
+      packet.push_back(byte);
     }
   }
 
@@ -75,14 +75,14 @@ QByteArray PacketGenerator::generatePacket()
   Util::setLength(packet);
   Util::attachCRC(packet);
   dataChangeList.clear();
-  qDebug()<<"packet len : "<<packet.size()<<endl;
+  //cout<<"packet len : "<<packet.size()<<endl;
 
   return packet;
 }
 
 void PacketGenerator:: addDataChange(DataChange d)
 {
-  dataChangeList.append(d);
+  dataChangeList.push_back(d);
 }
 
 }

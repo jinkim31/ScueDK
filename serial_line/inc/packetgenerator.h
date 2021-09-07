@@ -1,10 +1,12 @@
 #ifndef PACKETGENERATOR_H
 #define PACKETGENERATOR_H
 
-#include <QVector>
-#include "device.h"
+#include <iostream>
+#include <vector>
 #include "sensor_msgs/JointState.h"
 #include "Util.h"
+
+typedef vector<unsigned char> ByteArray;
 
 namespace serial_line
 {
@@ -15,12 +17,12 @@ public:
   typedef struct
   {
     unsigned int address;
-    QVector<uint8_t> data;
+    ByteArray data;
   }DataChange;
 
   PacketGenerator();
   ~PacketGenerator();
-  QByteArray generatePacket();
+  ByteArray generatePacket();
   void addDataChange(DataChange d);
 
   template<class T, class T2>
@@ -28,7 +30,7 @@ public:
   {
     PacketGenerator::DataChange d;
     d.address = (char*)targetPtr-(char*)structPtr;
-    qDebug()<<"address : "<<d.address<<endl;
+    //qDebug()<<"address : "<<d.address<<endl;
 
     int dataSize = sizeof(T);
     T castedValue = (T)value;
@@ -37,14 +39,14 @@ public:
     memcpy(valueByteArray, &castedValue, dataSize);
     for(int i=0; i<dataSize ; i++)
     {
-      d.data.append(valueByteArray[i]);
+      d.data.push_back(valueByteArray[i]);
     }
 
     return d;
   }
 
 private:
-  QVector<DataChange> dataChangeList;
+  vector<DataChange> dataChangeList;
 };
 
 }
