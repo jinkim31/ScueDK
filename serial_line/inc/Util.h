@@ -9,18 +9,22 @@
 #define SRC_UTIL_H_
 
 #include <vector>
-#include <QByteArray>
 #include <stdlib.h>
 
-typedef unsigned char uint8_t;
+#define DEG2RAD(angleDegrees) ((angleDegrees) * M_PI / 180.0)
+#define RAD2DEG(angleRadians) ((angleRadians) * 180.0 / M_PI)
 
 using namespace std;
+
+
+typedef unsigned char uint8_t;
+typedef vector<unsigned char> ByteArray;
 
 class Util {
 public:
 	Util();
 
-  static unsigned short update_crc(QByteArray data_blk_ptr, unsigned short data_blk_size)
+  static unsigned short update_crc(ByteArray data_blk_ptr, unsigned short data_blk_size)
 	{
 		unsigned short crc_accum = 0;
 	    unsigned short i, j;
@@ -116,7 +120,7 @@ public:
       return crc_accum;
   }
 
-  static int byteArrayToInt(QByteArray& byteArray, int start, int length)
+  static int byteArrayToInt(ByteArray& byteArray, int start, int length)
 	{
 		if(byteArray.size() < (start + length)) return 0;
 
@@ -133,25 +137,25 @@ public:
 		return intResult;
 	}
 
-  static void attachCRC(QByteArray& byteArray)
+  static void attachCRC(ByteArray& byteArray)
 	{
     unsigned short crc = update_crc(byteArray, byteArray.size());
-    byteArray.append(crc& 0xff);
-    byteArray.append((crc>>8) & 0xff);
+    byteArray.push_back(crc& 0xff);
+    byteArray.push_back((crc>>8) & 0xff);
 	}
 
-  static void setLength(QByteArray& byteArray)
+  static void setLength(ByteArray& byteArray)
 	{
 		int length = byteArray.size() - 5;
 		byteArray[5] = (length& 0xff);
 		byteArray[6] = ((length>>8) & 0xff);
 	}
 
-  static void attachByteArray(QByteArray& packet, int value, int length)
+  static void attachByteArray(ByteArray& packet, int value, int length)
 	{
 		for(int i=0; i<length ; i++)
 		{
-      packet.append((value >> (i*8)) & 0xFF);
+      packet.push_back((value >> (i*8)) & 0xFF);
 		}
 	}
 

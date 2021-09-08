@@ -2,9 +2,10 @@
 Embedded communication &amp; data access library for Scue.
 
 ## ROS
-### Download & Build
+### Build
 ```
 cd ~/catkin_ws/src
+git clone https://github.com/wjwwood/serial.git
 git clone https://github.com/jinkim31/ScueDK.git scuedk
 cm
 ```
@@ -19,11 +20,16 @@ find_package(catkin REQUIRED qt_build roscpp scuedk)
 #include "schedk.h"
 ```
 
-3. Make Scue instance.
+## Embedded master
+### Clone source
 ```
-//In  QNode.h
-Scue<scue::Master> *scue; //Master is the master struct defined in structs.h.
+cd <your stm32cubeide project dir(not Core!)>
+git clone https://github.com/jinkim31/ScueDK.git scuedk
+```
+### Include
+```
+#include "../../ScueDK/scuedk_embedded/master/MasterSerialLine.h"
+#include "../../ScueDK/structs/structs.h"
+using namespace scue;
+```
 
-//In QNode.cpp 
-scue = new Scue<scue::Master>(n); //n is nodehandle
-```
