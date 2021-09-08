@@ -44,6 +44,7 @@ private:
     CONVERSATION_RESPONSE
   };
 
+
   inline static Serial serial;
   ConversationStatus conversationStatus;
   CommStatus commStatus;
@@ -65,6 +66,8 @@ private:
   void serialReadCallback();
   static void serialReadThread();
   static bool serialRead;
+  static mutex m;
+  static queue<PacketTranslator::PacketInfo> readPacketQueue;
 };
 
 #endif

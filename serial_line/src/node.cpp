@@ -1,6 +1,9 @@
 #include "../inc/node.h"
 
 bool Node::serialRead;
+mutex Node::m;
+queue<PacketTranslator::PacketInfo> Node::readPacketQueue;
+
 Node::Node(int &argc, char **argv)
 {
   ros::init(argc, argv, "serial_line");
@@ -20,7 +23,7 @@ Node::Node(int &argc, char **argv)
   string portName = argv[1];
 
   serial.setPort("/dev/"+portName);
-  serial.setBaudrate(115200);
+  serial.setBaudrate(1000000);
 
   conversationStatus = CONVERSATION_IDLE;
 
@@ -86,17 +89,29 @@ void Node::timerCallback()
   }
   case CONVERSATION_REQUEST:
   {
-    //serial.write(packetGenerator.generatePacket());
+    serial.write(packetGenerator.generatePacket());
     conversationStatus = CONVERSATION_RESPONSE;
     timeoutCnt = 0;
     break;
   }
   case CONVERSATION_RESPONSE:
   {
-    if(timeoutCnt++ > 10)
+    if(!readPacketQueue.empty())
     {
-      conversationStatus = CONVERSATION_REQUEST;
-      //cout<<"Timeout!"<<endl;
+      while(!readPacketQueue.empty())
+      {
+        readPacketQueue.pop();
+        cout<<"processed"<<endl;
+      }
+      conversationStatus = CONVERSATION_IDLE;
+    }
+    else
+    {
+      if(timeoutCnt++ > 100)
+      {
+        conversationStatus = CONVERSATION_REQUEST;
+        cout<<"Timeout!"<<endl;
+     } 
     }
     break;
   }
@@ -105,8 +120,8 @@ void Node::timerCallback()
 
 void Node::serialReadThread()
 {
-  PacketTranslator p;
-  PacketTranslator::PacketInfo pi;
+  PacketTranslator packetTranslator;
+  PacketTranslator::PacketInfo packetInfo;
   unsigned char byteArray[100];
   while(serialRead)
   {
@@ -116,12 +131,14 @@ void Node::serialReadThread()
       serial.read(byteArray, size);
       for(int i=0; i<size; i++)
       {
-        if(p.pushByte(pi, byteArray[i]))
+        if(packetTranslator.pushByte(packetInfo, byteArray[i]))
         {
           cout<<"Packet!"<<endl;
+          m.lock();
+          readPacketQueue.push(packetInfo);
+          m.unlock();
         }
       }
-      cout<<endl;
     }
   }
 }

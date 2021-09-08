@@ -1,14 +1,14 @@
 
 /*
- * SerialLine DataStructure for test v0.1.1
+ * ScueDK device data Structs
  *
  * Written by Jin kim 2021 @ Robit
  *
- * Change code below and struct.c to fit user'needs.
+ * Change code below and struct.c to fit user's needs.
  *
  * -- !!DISCLAIMERS!! --
  * 1. WRITE IN STANDARD C. IT WON'T BE COMPATIBLE WITH SLAVE SERIAL_LINE LIBRARY(WRITTEN IN C) OTHERWISE.
- * 2. DEFINE STRUCT FOR EACH SLAVE TYPE(motor driver, manipulator etc). DEFINE A MASTER STRUCT THAT HAS SLAVE STRUCTS DEDICATED TO EACH HARDWARD/SIMULATED SLAVE.
+ * 2. DEFINE STRUCT FOR EACH SLAVE TYPE(motor driver, manipulator etc). DEFINE A MASTER STRUCT THAT HAS SLAVE STRUCTS DEDICATED TO EACH HARDWARE/SIMULATED SLAVE.
  * 3. ENCAPSULATE EVERY VARIABLE INTO A STRUCT. 'STRAY' ONES MIGHT BE HARD TO SPECIFY THEIR ADDRESSES.
  */
 

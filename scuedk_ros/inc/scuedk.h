@@ -22,7 +22,7 @@
 using namespace std;
 namespace scue{
 
-template <class MasterStruct>
+template <typename MasterStruct>
 class Scue
 {
 public:
