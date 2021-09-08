@@ -39,6 +39,7 @@ public:
 		int getId(){return id;}
 		int getHeadAdr(){return headAdr;}
 		int getSize(){return size;}
+		uint8_t* getPtr(){return ptr;}
 	};
 
 	typedef struct _GlobalDataChange
@@ -96,6 +97,18 @@ private:
 		int timeoutCnt;
 		int maxTimeoutCnt;
 	};
+	class SlaveList : public vector<Slave>
+	{
+	public:
+		int indexOfId(int id)
+		{
+			for(int i=0; i<size(); i++)
+			{
+				if(at(i).getId()==id) return i;
+			}
+			return -1;
+		}
+	};
 
 	enum InjectState
 	{
@@ -105,17 +118,18 @@ private:
 		VALUE
 	};
 
+	SlaveList slaveList;
 	uint8_t *masterPtr;
 	int masterStructSize;
 	int updateRate;
 	UART_HandleTypeDef *huartPc, *huartSlave;
 	CommStateManager* stateManager;
 	PacketTranslator packetTranslatorPc, packetTranslatorSlave;
-	vector<Slave> slaveList;
 	vector<GlobalDataChange> globalDataChangeList;
 	vector<LocalDataChange> localDataChangeList;
 	queue<vector<uint8_t>> injectionPacketQueue;
 	vector<uint8_t> packet;
+	PacketInfo slavePacketInfo, pcPacketInfo;
 
 	void getGlobalDataChange(vector<uint8_t>& parameter)
 	{
@@ -160,6 +174,7 @@ private:
 					for(int i=0; i<size ; i++) dataChange.data.push_back(valueByteArray[i]);
 					globalDataChangeList.push_back(dataChange);
 					printf("injecting to %d\n",address);
+					//test code to directly memcpy value into master strucure
 					//memcpy((uint8_t*)&dataStructure + address, valueByteArray, size);*
 					state = ADDRESS_1;
 				}
@@ -260,7 +275,6 @@ private:
 		uint8_t* packetInArray = &packet[0];
 		HAL_UART_Transmit_DMA(huart, packetInArray, packet.size());
 	}
-
 	void uplink()
 	{
 		packet.clear();
@@ -296,7 +310,6 @@ public:
 		this->huartPc = huartPc;
 		this->huartSlave = huartSlave;
 	}
-
 	void init(uint8_t *masterPtr, int masterStructSize, int updateRate, UART_HandleTypeDef*huartPc, UART_HandleTypeDef *huartSlave)
 	{
 		this->masterPtr = masterPtr;
@@ -333,21 +346,21 @@ public:
 				generateInjectionPacket();
 
 				//set commstate to REQUEST
-				//stateManager->setState(CommStateManager::REQUEST);
-
-				//FOR TEST, SET COMMSTATE TO UPLINK
-				stateManager->setState(CommStateManager::UPLINK);
+				stateManager->setState(CommStateManager::REQUEST);
 				break;
 			}
 			}
 		}
 	}
-
 	void pushSlaveRx(uint8_t byte)
 	{
 		if(packetTranslatorSlave.pushByte(byte))
 		{
-			packetTranslatorSlave.getPacketInfo();
+			slavePacketInfo = packetTranslatorSlave.getPacketInfo();
+			int slaveIndex = slaveList.indexOfId(slavePacketInfo.id);
+			if(slaveIndex == -1) return;//no slave of the id found.
+			if(slaveList[slaveIndex].getSize() == slavePacketInfo.parameter.size()) memcpy(slaveList[slaveIndex].getPtr(), &slavePacketInfo.parameter[0], slavePacketInfo.parameter.size());
+			stateManager->setState(CommStateManager::REQUEST);
 		}
 	}
 	void addSlave(Slave slave){slaveList.push_back(slave);}
@@ -367,13 +380,13 @@ public:
 			}
 			else
 			{
-				stateManager->setState(CommStateManager::IDLE);
+				stateManager->setState(CommStateManager::UPLINK);
 			}
 			break;
 		}
 		case CommStateManager::READ:
 		{
-
+			//pushSlaveRx() handles state transition
 			break;
 		}
 		case CommStateManager::UPLINK:
