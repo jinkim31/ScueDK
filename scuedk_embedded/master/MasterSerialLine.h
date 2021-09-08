@@ -106,6 +106,7 @@ private:
 	};
 
 	uint8_t *masterPtr;
+	int masterStructSize;
 	int updateRate;
 	UART_HandleTypeDef *huartPc, *huartSlave;
 	CommStateManager* stateManager;
@@ -114,6 +115,7 @@ private:
 	vector<GlobalDataChange> globalDataChangeList;
 	vector<LocalDataChange> localDataChangeList;
 	queue<vector<uint8_t>> injectionPacketQueue;
+	vector<uint8_t> packet;
 
 	void getGlobalDataChange(vector<uint8_t>& parameter)
 	{
@@ -253,23 +255,52 @@ private:
 			//injectionPacketQueue.push(packet);
 		}
 	}
+	void writePacket(UART_HandleTypeDef *huart, vector<uint8_t> &packet)
+	{
+		uint8_t* packetInArray = &packet[0];
+		HAL_UART_Transmit_DMA(huart, packetInArray, packet.size());
+	}
 
+	void uplink()
+	{
+		packet.clear();
+		packet.push_back(0xFF);
+		packet.push_back(0xFF);
+		packet.push_back(0xFD);
+		packet.push_back(0x00);
+		packet.push_back(0x00);
+		packet.push_back(0);	//length placeholder. valid value is set by setLength()
+		packet.push_back(0);	//length placeholder. valid value is set by setLength()
+		packet.push_back(0xDE);
+
+		for(int i=0; i<masterStructSize; i++)
+		{
+			packet.push_back(*((uint8_t*)masterPtr+i));
+		}
+
+		Util::setLength(packet);
+		Util::attachCRC(packet);
+
+		writePacket(huartPc, packet);
+	}
 public:
 	MasterSerialLine()
 	{
 		stateManager = new CommStateManager(CommStateManager::IDLE, 1, 1000);
 	}
-	MasterSerialLine(uint8_t *masterPtr, int updateRate, UART_HandleTypeDef*huartPc, UART_HandleTypeDef *huartSlave): MasterSerialLine()
+	MasterSerialLine(uint8_t *masterPtr, int masterStructSize, int updateRate, UART_HandleTypeDef*huartPc, UART_HandleTypeDef *huartSlave): MasterSerialLine()
 	{
 		this->masterPtr = masterPtr;
+		this->masterStructSize = masterStructSize;
 		this->updateRate = updateRate;
 		this->huartPc = huartPc;
 		this->huartSlave = huartSlave;
 	}
 
-	void init(uint8_t *masterPtr, int updateRate, UART_HandleTypeDef*huartPc, UART_HandleTypeDef *huartSlave)
+	void init(uint8_t *masterPtr, int masterStructSize, int updateRate, UART_HandleTypeDef*huartPc, UART_HandleTypeDef *huartSlave)
 	{
 		this->masterPtr = masterPtr;
+		this->masterStructSize = masterStructSize;
 		this->updateRate = updateRate;
 		this->huartPc = huartPc;
 		this->huartSlave = huartSlave;
@@ -304,7 +335,8 @@ public:
 				//set commstate to REQUEST
 				//stateManager->setState(CommStateManager::REQUEST);
 
-
+				//FOR TEST, SET COMMSTATE TO UPLINK
+				stateManager->setState(CommStateManager::UPLINK);
 				break;
 			}
 			}
@@ -342,6 +374,12 @@ public:
 		case CommStateManager::READ:
 		{
 
+			break;
+		}
+		case CommStateManager::UPLINK:
+		{
+			uplink();
+			stateManager->setState(CommStateManager::IDLE);
 			break;
 		}
 		default:
