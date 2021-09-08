@@ -101,20 +101,30 @@ void Node::timerCallback()
       while(!readPacketQueue.empty())
       {
         readPacketQueue.pop();
-        cout<<"processed"<<endl;
+        //cout<<"processed"<<endl;
       }
+      convPerSec++;
       conversationStatus = CONVERSATION_IDLE;
     }
     else
     {
       if(timeoutCnt++ > 100)
       {
+        timeoutPerSec++;
         conversationStatus = CONVERSATION_REQUEST;
-        cout<<"Timeout!"<<endl;
+        //cout<<"Timeout!"<<endl;
      } 
     }
     break;
   }
+  }
+
+  if((ros::Time::now() - timeLastDebug).toSec() >= 1)
+  {
+    cout<<"[Conv/sec:"<<convPerSec<<" Timeouts:"<<timeoutPerSec<<"]"<<endl;
+    convPerSec = 0;
+    timeoutPerSec = 0;
+    timeLastDebug=ros::Time::now();
   }
 }
 
@@ -133,7 +143,7 @@ void Node::serialReadThread()
       {
         if(packetTranslator.pushByte(packetInfo, byteArray[i]))
         {
-          cout<<"Packet!"<<endl;
+          //cout<<"Packet!"<<endl;
           m.lock();
           readPacketQueue.push(packetInfo);
           m.unlock();
@@ -159,6 +169,9 @@ bool Node::moderateComm()
     if(serial.isOpen())
     {
       cout<<"Port opened"<<endl;
+      timeLastDebug=ros::Time::now();
+      convPerSec = 0;
+      timeoutPerSec = 0;
     }
     else
     {

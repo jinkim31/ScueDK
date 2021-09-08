@@ -64,6 +64,9 @@ private:
   void processScueSet(PacketGenerator::DataChange d);
   void timerCallback();
   void serialReadCallback();
+  ros::Time timeLastDebug;
+  int convPerSec;
+  int timeoutPerSec;
   static void serialReadThread();
   static bool serialRead;
   static mutex m;
