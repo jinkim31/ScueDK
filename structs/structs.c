@@ -4,13 +4,6 @@
  * Implement init functions here.
  */
 
-void initSlave1(Slave1* s)
-{
-	s->a=0;
-	s->b=0;
-  s->c=0;
-}
-
 void initSlave2(Slave2* s)
 {
 	s->d=0;
