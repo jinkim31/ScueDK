@@ -6,6 +6,7 @@
  */
 
 #include "../inc/serial_line.h"
+#include "main.h"
 
 void clearBuffer();
 unsigned short update_crc(unsigned char *data_blk_ptr, unsigned short data_blk_size);
@@ -95,13 +96,6 @@ int pushByte(SerialLine *serialLine, uint8_t byte)
 	case RX_STATE_ID:
 	{
 		bufferPush(serialLine, byte);
-
-		if(byte == 6)
-		{
-			serialLine->nominalTransmitCnt--;
-			int a = 0;
-			a++;
-		}
 		serialLine->state = LENGTH_1;
 		break;
 	}
@@ -193,7 +187,7 @@ int pushByte(SerialLine *serialLine, uint8_t byte)
 					packet[packetLength++] = (crc>>8) & 0xff;
 					serialLine->nominalTransmitCnt++;
 					writePacket(serialLine, packet, packetLength);
-
+					HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_2);
 					break;
 				}
 				}
