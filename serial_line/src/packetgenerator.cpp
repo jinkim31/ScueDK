@@ -1,4 +1,5 @@
 #include"../inc/packetgenerator.h"
+#include <iostream>
 
 namespace serial_line
 {
@@ -74,6 +75,9 @@ ByteArray PacketGenerator::generatePacket()
   //validate, return
   Util::setLength(packet);
   Util::attachCRC(packet);
+
+  //for(int i=0; i<packet.size(); i++) std::cout<<(unsigned int)packet[i]<<" ";
+  //std::cout<<endl;
   dataChangeList.clear();
   //cout<<"packet len : "<<packet.size()<<endl;
 

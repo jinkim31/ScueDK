@@ -100,8 +100,14 @@ void Node::timerCallback()
     {
       while(!readPacketQueue.empty())
       {
+        std_msgs::ByteMultiArray scueReadMsg;
+        for(int i=0; i<readPacketQueue.front().parameter.size(); i++)
+        {
+          scueReadMsg.data.push_back(readPacketQueue.front().parameter[i]);
+        }
+        robotReadPub.publish(scueReadMsg);
+        conversationStatus = CONVERSATION_REQUEST;
         readPacketQueue.pop();
-        //cout<<"processed"<<endl;
       }
       convPerSec++;
       conversationStatus = CONVERSATION_IDLE;
@@ -112,14 +118,13 @@ void Node::timerCallback()
       {
         timeoutPerSec++;
         conversationStatus = CONVERSATION_REQUEST;
-        //cout<<"Timeout!"<<endl;
      } 
     }
     break;
   }
   }
 
-  if((ros::Time::now() - timeLastDebug).toSec() >= 1)
+  if((ros::Time::now() - timeLastDebug).toSec() >= 1.0)
   {
     cout<<"[Conv/sec:"<<convPerSec<<" Timeouts:"<<timeoutPerSec<<"]"<<endl;
     convPerSec = 0;
@@ -143,7 +148,6 @@ void Node::serialReadThread()
       {
         if(packetTranslator.pushByte(packetInfo, byteArray[i]))
         {
-          //cout<<"Packet!"<<endl;
           m.lock();
           readPacketQueue.push(packetInfo);
           m.unlock();

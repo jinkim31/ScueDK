@@ -50,7 +50,7 @@ public:
     d.address = (uint8_t*)&target-(uint8_t*)&ref;
     if(d.address < 0 || sizeof(ref) < d.address)
     {
-      ROS_WARN("[ScueDK] WARNING: method \'set(T &target, Wildcard value)\' is not being used properly. parameter \'target\' must be a member variable of struct \'ref\'. Request ignored.");
+      ROS_WARN("[ScueDK] Method \'set(T &target, Wildcard value)\' is not being used properly. parameter \'target\' must be a member variable of struct \'ref\'. Request ignored.");
       return;
     }
 
@@ -73,7 +73,7 @@ public:
     int address = (uint8_t*)&target-(uint8_t*)&ref;
     if(address < 0 || sizeof(ref) < address)
     {
-      ROS_WARN("[ScueDK] WARNING: method \'get(T &target)\' is not being used properly. parameter \'target\' must be a member variable of struct \'ref\'. Request ignored.");
+      ROS_WARN("[ScueDK] Method \'get(T &target)\' is not being used properly. parameter \'target\' must be a member variable of struct \'ref\'. Request ignored.");
       return (T)0;
     }
     return *((T*)((uint8_t*)&data + address));
@@ -147,6 +147,10 @@ private:
     if(msg.data.size() == sizeof (data))
     {
       memcpy(&data, msg.data.data(), sizeof (data));
+    }
+    else
+    {
+      ROS_WARN("[ScueDK] Uplink data size(%d bytes) does not match with master struct size(%d bytes). Make sure you're using latest version of ScueDK.\n",msg.data.size(),sizeof (data));
     }
   }
 };
