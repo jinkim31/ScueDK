@@ -27,7 +27,7 @@ public:
 	private:
 		uint8_t id;
 		uint8_t* ptr;
-		int headAdr, size;
+		unsigned int headAdr, size;
 		bool simulatedSlave;
 
 	public:
@@ -37,7 +37,7 @@ public:
 		bool bears(int globalAdr){return (headAdr <= globalAdr && globalAdr < headAdr+size);}
 		bool isSimulated(){return simulatedSlave;}
 		uint8_t getId(){return id;}
-		int getHeadAdr(){return headAdr;}
+		unsigned int getHeadAdr(){return headAdr;}
 		int getSize(){return size;}
 		uint8_t* getPtr(){return ptr;}
 	};
@@ -260,8 +260,8 @@ private:
 			//parameter
 			for(LocalDataChange localDataChange : slaveSpecificDataChange)
 			{
-				packet.push_back(localDataChange.slave->getHeadAdr() & 0xFF);
-				packet.push_back((localDataChange.slave->getHeadAdr()>>8) & 0xFF);
+				packet.push_back((localDataChange.address>>0) & 0xFF);
+				packet.push_back((localDataChange.address>>8) & 0xFF);
 
 				packet.push_back(localDataChange.data.size());
 				for(uint8_t valueByte : localDataChange.data)
@@ -366,9 +366,18 @@ public:
 		if(packetTranslatorSlave.pushByte(byte))
 		{
 			slavePacketInfo = packetTranslatorSlave.getPacketInfo();
+			if(slavePacketInfo.instruction!=0x55) return;//not a response
 			int slaveIndex = slaveList.indexOfId(slavePacketInfo.id);
 			if(slaveIndex == -1) return;//no slave of the id found.
-			if(slaveList[slaveIndex].getSize() == slavePacketInfo.parameter.size()) memcpy(slaveList[slaveIndex].getPtr(), &slavePacketInfo.parameter[0], slavePacketInfo.parameter.size());
+			int size = slaveList[slaveIndex].getSize();
+			if(slaveList[slaveIndex].getSize() == slavePacketInfo.parameter.size())
+			{
+				memcpy(masterPtr+slaveList[slaveIndex].getHeadAdr(), &slavePacketInfo.parameter[0], slavePacketInfo.parameter.size());
+			}
+			else
+			{
+				printf("asd");
+			}
 			stateManager->setState(CommStateManager::REQUEST);
 		}
 	}
@@ -383,7 +392,6 @@ public:
 		{
 			if(!injectionPacketQueue.empty())
 			{
-				HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_2);
 				slaveWritingPacket = injectionPacketQueue.front();
 				injectionPacketQueue.pop();
 				writePacket(huartSlave, slaveWritingPacket);
@@ -402,6 +410,7 @@ public:
 		}
 		case CommStateManager::UPLINK:
 		{
+			HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_2);
 			uplink();
 			stateManager->setState(CommStateManager::IDLE);
 			break;
