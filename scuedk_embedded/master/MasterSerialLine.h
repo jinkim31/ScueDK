@@ -25,18 +25,18 @@ public:
 	class Slave
 	{
 	private:
-		int id;
+		uint8_t id;
 		uint8_t* ptr;
 		int headAdr, size;
 		bool simulatedSlave;
 
 	public:
-		Slave(int id, int headAdr, int size, bool simulatedSlave=false) : id(id), headAdr(headAdr), size(size), simulatedSlave(simulatedSlave){}
+		Slave(uint8_t id, int headAdr, int size, bool simulatedSlave=false) : id(id), headAdr(headAdr), size(size), simulatedSlave(simulatedSlave){}
 		~Slave(){}
 
 		bool bears(int globalAdr){return (headAdr <= globalAdr && globalAdr < headAdr+size);}
 		bool isSimulated(){return simulatedSlave;}
-		int getId(){return id;}
+		uint8_t getId(){return id;}
 		int getHeadAdr(){return headAdr;}
 		int getSize(){return size;}
 		uint8_t* getPtr(){return ptr;}
@@ -63,6 +63,7 @@ private:
 	public:
 		enum State
 		{
+			NONE,
 			IDLE,
 			REQUEST,
 			READ,
@@ -75,9 +76,16 @@ private:
 			abortState = IDLE;
 		}
 
-		void setState(State state, State abortState=IDLE)
+		void setState(State state)
 		{
 			this->state = state;
+			timeoutCnt = 0;
+		}
+
+		void setStateWithTimeout(State state, State abortState)
+		{
+			this->state = state;
+			this->abortState = abortState;
 			timeoutCnt = 0;
 		}
 
@@ -85,17 +93,17 @@ private:
 
 		void update()
 		{
-			if(timeoutCnt++ >= maxTimeoutCnt)
+			if(abortState!=NONE && timeoutCnt++ >= maxTimeoutCnt)
 			{
 				state = abortState;
-				timeoutCnt=0;
+				abortState = NONE;
 			}
 		}
 	private:
-		State state;
-		State abortState;
-		int timeoutCnt;
-		int maxTimeoutCnt;
+			State state;
+			State abortState;
+			int timeoutCnt;
+			int maxTimeoutCnt;
 	};
 	class SlaveList : public vector<Slave>
 	{
@@ -128,8 +136,9 @@ private:
 	vector<GlobalDataChange> globalDataChangeList;
 	vector<LocalDataChange> localDataChangeList;
 	queue<vector<uint8_t>> injectionPacketQueue;
-	vector<uint8_t> packet;
+	vector<uint8_t> slaveWritingPacket, packet;
 	PacketInfo slavePacketInfo, pcPacketInfo;
+	int debugNum;
 
 	void getGlobalDataChange(vector<uint8_t>& parameter)
 	{
@@ -173,7 +182,7 @@ private:
 					dataChange.address = address;
 					for(int i=0; i<size ; i++) dataChange.data.push_back(valueByteArray[i]);
 					globalDataChangeList.push_back(dataChange);
-					printf("injecting to %d\n",address);
+					//printf("injecting to %d\n",address);
 					//test code to directly memcpy value into master strucure
 					//memcpy((uint8_t*)&dataStructure + address, valueByteArray, size);*
 					state = ADDRESS_1;
@@ -267,13 +276,13 @@ private:
 
 			//save to packet queue
 			//TODO : prevent packet queue from taking too much memory and eventually shutting down the system. line below has been commented temporarily
-			//injectionPacketQueue.push(packet);
+			injectionPacketQueue.push(packet);
 		}
 	}
 	void writePacket(UART_HandleTypeDef *huart, vector<uint8_t> &packet)
 	{
 		uint8_t* packetInArray = &packet[0];
-		HAL_UART_Transmit_DMA(huart, packetInArray, packet.size());
+		HAL_UART_Transmit(huart, packetInArray, packet.size(),1000);
 	}
 	void uplink()
 	{
@@ -300,7 +309,7 @@ private:
 public:
 	MasterSerialLine()
 	{
-		stateManager = new CommStateManager(CommStateManager::IDLE, 1, 1000);
+		stateManager = new CommStateManager(CommStateManager::IDLE, 1, 30);
 	}
 	MasterSerialLine(uint8_t *masterPtr, int masterStructSize, int updateRate, UART_HandleTypeDef*huartPc, UART_HandleTypeDef *huartSlave): MasterSerialLine()
 	{
@@ -374,9 +383,11 @@ public:
 		{
 			if(!injectionPacketQueue.empty())
 			{
-				HAL_UART_Transmit(huartSlave, &injectionPacketQueue.front()[0], injectionPacketQueue.front().size(), 1000);
+				HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_2);
+				slaveWritingPacket = injectionPacketQueue.front();
 				injectionPacketQueue.pop();
-				stateManager->setState(CommStateManager::READ);
+				writePacket(huartSlave, slaveWritingPacket);
+				stateManager->setStateWithTimeout(CommStateManager::READ, CommStateManager::REQUEST);
 			}
 			else
 			{
