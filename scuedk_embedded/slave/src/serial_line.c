@@ -159,34 +159,33 @@ int pushByte(SerialLine *serialLine, uint8_t byte)
 				{
 					injectValue(serialLine, &serialLine->packetBuffer[8], serialLine->packetBufferSize-10);
 
-					uint8_t packet[serialLine->dataStructSize + 20];
 					int packetLength=0;
 
-					packet[packetLength++] = 0xFF;
-					packet[packetLength++] = 0xFF;
-					packet[packetLength++] = 0xFD;
-					packet[packetLength++] = 0x00;
-					packet[packetLength++] = serialLine->id;
-					packet[packetLength++] = 0;	//length placeholder. valid value is set by setLength()
-					packet[packetLength++] = 0;	//length placeholder. valid value is set by setLength()
-					packet[packetLength++] = 0X55;
-					packet[packetLength++] = 0;//error
+					serialLine->packet[packetLength++] = 0xFF;
+					serialLine->packet[packetLength++] = 0xFF;
+					serialLine->packet[packetLength++] = 0xFD;
+					serialLine->packet[packetLength++] = 0x00;
+					serialLine->packet[packetLength++] = serialLine->id;
+					serialLine->packet[packetLength++] = 0;	//length placeholder. valid value is set by setLength()
+					serialLine->packet[packetLength++] = 0;	//length placeholder. valid value is set by setLength()
+					serialLine->packet[packetLength++] = 0X55;
+					serialLine->packet[packetLength++] = 0;//error
 					for(int i=0; i<serialLine->dataStructSize; i++)
 					{
-						packet[packetLength++] = *(serialLine->dataStructurePtr + i);
+						serialLine->packet[packetLength++] = *(serialLine->dataStructurePtr + i);
 					}
 
 					//set length
 					int length = packetLength - 5;
-					packet[5] = (length& 0xff);
-					packet[6] = ((length>>8) & 0xff);
+					serialLine->packet[5] = (length& 0xff);
+					serialLine->packet[6] = ((length>>8) & 0xff);
 
 					//attach CRC
-					unsigned short crc = update_crc(packet, packetLength);
-					packet[packetLength++] = crc& 0xff;
-					packet[packetLength++] = (crc>>8) & 0xff;
+					unsigned short crc = update_crc(serialLine->packet, packetLength);
+					serialLine->packet[packetLength++] = crc& 0xff;
+					serialLine->packet[packetLength++] = (crc>>8) & 0xff;
 					serialLine->nominalTransmitCnt++;
-					writePacket(serialLine, packet, packetLength);
+					writePacket(serialLine, serialLine->packet, packetLength);
 					HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_2);
 					break;
 				}
@@ -207,7 +206,6 @@ void writePacket(SerialLine *serialLine, uint8_t packet[], int length)
 	for(int i=0; i<length; i++)
 	{
 		while(!LL_USART_IsActiveFlag_TXE(serialLine->usart));
-
 		LL_USART_TransmitData8(serialLine->usart, packet[i]);
 	}
 }

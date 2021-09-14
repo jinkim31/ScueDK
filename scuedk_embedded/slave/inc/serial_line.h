@@ -46,6 +46,7 @@ typedef struct
 	uint8_t failByte;
 	int packetBufferSize;
 	int nominalTransmitCnt;
+	uint8_t packet[300];
 	int test;
 }SerialLine;
 
