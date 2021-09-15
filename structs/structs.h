@@ -70,12 +70,7 @@ typedef struct _Master
  * Implement them in "struct.c".
  */
 
-void initSlave1(Slave1* s)
-{
-	s->a=0;
-	s->b=0;
-    s->c=0;
-}
+void initSlave1(Slave1* s);
 void initSlave2(Slave2 *s);
 void initManipulator(Manipulator *s);
 void initMasterTweak(MasterTweak *s);
