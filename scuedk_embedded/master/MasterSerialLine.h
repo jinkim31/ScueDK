@@ -218,8 +218,8 @@ private:
 					{
 						localDataChangeList.push_back(localDataChange);
 					}
+					break;
 				}
-				break;
 			}
 		}
 	}
