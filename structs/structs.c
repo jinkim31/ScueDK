@@ -22,8 +22,10 @@ void initManipulator(Manipulator* s)
 {
 	for(int i=0; i<6; i++)
 	{
-		s->targetAngle[i] = 0.0;
+		s->targetPosition[i] = 0.0;
+		s->targetAcceleration[i] = 10.0;
 	}
+	s->gripperTargetCurrent = 0;
 }
 
 void initMasterTweak(MasterTweak* s)

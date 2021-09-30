@@ -45,7 +45,9 @@ typedef struct _Slave2
 
 typedef struct _Manipulator
 {
-	float targetAngle[6];
+	float targetPosition[6];
+	float targetAcceleration[6];
+	float gripperTargetCurrent;
 }Manipulator;
 
 typedef struct _MasterTweak
