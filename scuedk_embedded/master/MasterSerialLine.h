@@ -18,6 +18,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <functional>
 
 class MasterSerialLine
 {
@@ -29,6 +30,7 @@ public:
 		uint8_t* ptr;
 		unsigned int headAdr, size;
 		bool simulatedSlave;
+
 
 	public:
 		Slave(uint8_t id, int headAdr, int size, bool simulatedSlave=false) : id(id), headAdr(headAdr), size(size), simulatedSlave(simulatedSlave){}
@@ -67,6 +69,7 @@ private:
 			IDLE,
 			REQUEST,
 			READ,
+			EXTERNAL,
 			UPLINK
 		};
 
@@ -139,6 +142,7 @@ private:
 	vector<uint8_t> slaveWritingPacket, packet;
 	PacketInfo slavePacketInfo, pcPacketInfo;
 	int debugNum;
+	function<void(void)> externalCallback;
 
 	void getGlobalDataChange(vector<uint8_t>& parameter)
 	{
@@ -211,8 +215,7 @@ private:
 
 					if(slave.isSimulated())
 					{
-
-						memcpy(masterPtr+localDataChange.address,&localDataChange.data[0], localDataChange.data.size());
+						memcpy(masterPtr+slave.getHeadAdr()+localDataChange.address,&localDataChange.data[0], localDataChange.data.size());
 					}
 					else
 					{
@@ -399,13 +402,19 @@ public:
 			}
 			else
 			{
-				stateManager->setState(CommStateManager::UPLINK);
+				stateManager->setState(CommStateManager::EXTERNAL);
+				if(externalCallback) externalCallback();
 			}
 			break;
 		}
 		case CommStateManager::READ:
 		{
 			//pushSlaveRx() handles state transition
+			break;
+		}
+		case CommStateManager::EXTERNAL:
+		{
+			//jumpToUplink() handles state transition
 			break;
 		}
 		case CommStateManager::UPLINK:
@@ -421,6 +430,10 @@ public:
 		}
 		}
 	}
+
+	void setExternalCallback(function<void(void)> function){this->externalCallback = function;}
+	void jumpToUplink(){if(stateManager->getState() == CommStateManager::EXTERNAL)stateManager->setState(CommStateManager::UPLINK);}
+
 };
 
 #endif
