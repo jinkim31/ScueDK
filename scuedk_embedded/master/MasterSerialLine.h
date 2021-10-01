@@ -143,6 +143,8 @@ private:
 	PacketInfo slavePacketInfo, pcPacketInfo;
 	int debugNum;
 	function<void(void)> externalCallback;
+	function<void(void)> cycleCallback;
+	bool active;
 
 	void getGlobalDataChange(vector<uint8_t>& parameter)
 	{
@@ -230,6 +232,8 @@ private:
 	{
 		for(Slave slave : slaveList)
 		{
+			if(slave.isSimulated()) continue;
+
 			vector<LocalDataChange> slaveSpecificDataChange;
 
 			//search for local changes that describe data change of iterated slave
@@ -321,6 +325,7 @@ public:
 		this->updateRate = updateRate;
 		this->huartPc = huartPc;
 		this->huartSlave = huartSlave;
+		this->active = true;
 	}
 	void init(uint8_t *masterPtr, int masterStructSize, int updateRate, UART_HandleTypeDef*huartPc, UART_HandleTypeDef *huartSlave)
 	{
@@ -336,6 +341,8 @@ public:
 	}
 	void pushPcRx(uint8_t byte)
 	{
+		if(!active) return;
+
 		//ignore rx unless comm state is in idle;
 		if(stateManager->getState() != CommStateManager::IDLE) return;
 
@@ -366,6 +373,8 @@ public:
 	}
 	void pushSlaveRx(uint8_t byte)
 	{
+		if(!active) return;
+
 		if(packetTranslatorSlave.pushByte(byte))
 		{
 			slavePacketInfo = packetTranslatorSlave.getPacketInfo();
@@ -387,6 +396,8 @@ public:
 	void addSlave(Slave slave){slaveList.push_back(slave);}
 	void update()
 	{
+		if(!active) return;
+
 		stateManager->update();
 
 		switch(stateManager->getState())
@@ -421,6 +432,7 @@ public:
 		{
 			HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_2);
 			uplink();
+			cycleCallback();
 			stateManager->setState(CommStateManager::IDLE);
 			break;
 		}
@@ -432,8 +444,10 @@ public:
 	}
 
 	void setExternalCallback(function<void(void)> function){this->externalCallback = function;}
+	void setCycleCallback(function<void(void)> function){this->cycleCallback= function;}
 	void jumpToUplink(){if(stateManager->getState() == CommStateManager::EXTERNAL)stateManager->setState(CommStateManager::UPLINK);}
-
+	void setActive(bool value){this->active = value;}
+	bool isActive(){return active;}
 };
 
 #endif
