@@ -30,7 +30,8 @@ void initManipulator(Manipulator* s)
 
 void initMasterTweak(MasterTweak* s)
 {
-	s->initTrigger=false;
+	s->initManipulatorTrigger;
+	s->initFlipperTrigger;
 }
 
 void initMaster(Master* s)

@@ -52,7 +52,8 @@ typedef struct _Manipulator
 
 typedef struct _MasterTweak
 {
-	bool initTrigger;
+	bool initManipulatorTrigger;
+	bool initFlipperTrigger;
 }MasterTweak;
 
 /*
