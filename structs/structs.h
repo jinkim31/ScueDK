@@ -24,36 +24,29 @@ namespace scue {
 
 /*
  * SLAVE STRUCTS
+ * S : SET
+ * R : READ
  */
 
 typedef struct _MotorController
 {
-	float trackTargetSpeed;
-	float flipperATargetAngle;
-	float flipperBTargetAngle;
+	float trackTargetSpeed;         //S 회전속도 (rad/s)
+	float flipperATargetAngle;      //S 플리퍼A 각도 (rad)
+	float flipperBTargetAngle;      //S 플리퍼B 각도 (rad)
+    double encoderReading;          //R 누적 엔코더 각도. 오버플로우 없도록 주의 (rad)
 }MotorController;
-
-typedef struct _Slave1
-{
-	int a,b,c;
-}Slave1;
-
-typedef struct _Slave2
-{
-	int d,e,f;
-}Slave2;
 
 typedef struct _Manipulator
 {
-	float targetPosition[6];
-	float targetAcceleration[6];
-	float gripperTargetCurrent;
+	float targetPosition[6];        //S 가장 아래부터 6축의 각도 목표값 (rad)
+	float gripperTargetCurrent;     //S 가장 아래부터 6축의 각속도 목표값 (rad/s)
+    float targetAcceleration[6];    //S 가장 아래부터 6축의 각가속도 목표값 (rad/s^2)
 }Manipulator;
 
 typedef struct _MasterTweak
 {
-	bool initManipulatorTrigger;
-	bool initFlipperTrigger;
+	bool initManipulatorTrigger;    //매니퓰레이터 초기화 트리거
+	bool initFlipperTrigger;        //플리퍼 초기화 트리거
 }MasterTweak;
 
 /*
@@ -62,8 +55,8 @@ typedef struct _MasterTweak
 
 typedef struct _Master
 {
-	Slave1 slave1;
-	Slave2 slave2;
+	MotorController motorControllerA;
+	MotorController motorControllerB;
 	Manipulator manipulator;
 	MasterTweak masterTweak;
 }Master;
@@ -73,8 +66,7 @@ typedef struct _Master
  * Implement them in "struct.c".
  */
 
-void initSlave1(Slave1* s);
-void initSlave2(Slave2 *s);
+void initMotorController(MotorController *s);
 void initManipulator(Manipulator *s);
 void initMasterTweak(MasterTweak *s);
 void initMaster(Master *s);

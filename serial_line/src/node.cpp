@@ -126,7 +126,7 @@ void Node::timerCallback()
 
   if((ros::Time::now() - timeLastDebug).toSec() >= 1.0)
   {
-    cout<<"[Conv/sec:"<<convPerSec<<" Timeouts:"<<timeoutPerSec<<"]"<<endl;
+    cout<<"["<<convPerSec<<"Hz Timeouts:"<<timeoutPerSec<<"]"<<endl;
     convPerSec = 0;
     timeoutPerSec = 0;
     timeLastDebug=ros::Time::now();

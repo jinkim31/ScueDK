@@ -4,18 +4,12 @@
  * Implement init functions here.
  */
 
-void initSlave1(Slave1* s)
+void initMotorController(MotorController *s)
 {
-	s->a=0;
-	s->b=0;
-    s->c=0;
-}
-
-void initSlave2(Slave2* s)
-{
-	s->d=0;
-	s->e=0;
-	s->f=0;
+    s->trackTargetSpeed=0.0;
+    s->flipperATargetAngle=0.0;
+    s->flipperBTargetAngle=0.0;
+    s->encoderReading=0.0;
 }
 
 void initManipulator(Manipulator* s)
@@ -36,8 +30,8 @@ void initMasterTweak(MasterTweak* s)
 
 void initMaster(Master* s)
 {
-	initSlave1(&s->slave1);
-	initSlave2(&s->slave2);
+    initMotorController(&s->motorControllerA);
+    initMotorController(&s->motorControllerB);
 	initManipulator(&s->manipulator);
 	initMasterTweak(&s->masterTweak);
 }

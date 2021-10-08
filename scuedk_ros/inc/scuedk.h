@@ -16,22 +16,41 @@
 #include <ros/console.h>
 #include <vector>
 #include <iostream>
+#include <functional>
 #include <std_msgs/ByteMultiArray.h>
 #include "../../structs/structs.h"
 
 using namespace std;
 namespace scue{
 
-template <typename MasterStruct>
 class Scue
 {
 public:
-  typedef struct
-  {
-    int address;
-    vector<uint8_t> data;
-  }DataChange;
-
+    typedef struct
+    {
+        int address;
+        vector<uint8_t> data;
+    }DataChange;
+private:
+    ros::NodeHandle* nodeHandle;
+    vector<DataChange> dataChangeList;
+    ros::Publisher setPub;
+    ros::Subscriber scueReadSub;
+    Master data;
+    function<void(void)>cycleCallback;
+    void scueReadCallback(const std_msgs::ByteMultiArray &msg)
+    {
+        if(msg.data.size() == sizeof (data))
+        {
+            memcpy(&data, msg.data.data(), sizeof (data));
+            if(cycleCallback) cycleCallback();
+        }
+        else
+        {
+            ROS_WARN("[ScueDK] Uplink data size(%d bytes) does not match with master struct size(%d bytes). Make sure you're using latest version of ScueDK.\n",msg.data.size(),sizeof (data));
+        }
+    }
+public:
   typedef unsigned char uint8_t;
 
   Scue(ros::NodeHandle& nodeHandle)
@@ -41,7 +60,7 @@ public:
     scueReadSub = nodeHandle.subscribe("scue_read",100, &Scue::scueReadCallback, this);
   }
 
-  MasterStruct ref;
+  Master ref;
 
   template<class T, class Wildcard>
   void set(T &target, Wildcard value)
@@ -132,26 +151,13 @@ public:
     dataChangeList.clear();
   }
 
-  virtual ~Scue()
+  void setCycleCallback(function<void(void)> func)
   {
+      this->cycleCallback = func;
   }
 
-private:
-  ros::NodeHandle* nodeHandle;
-  vector<DataChange> dataChangeList;
-  ros::Publisher setPub;
-  ros::Subscriber scueReadSub;
-  MasterStruct data;
-  void scueReadCallback(const std_msgs::ByteMultiArray &msg)
+  virtual ~Scue()
   {
-    if(msg.data.size() == sizeof (data))
-    {
-      memcpy(&data, msg.data.data(), sizeof (data));
-    }
-    else
-    {
-      ROS_WARN("[ScueDK] Uplink data size(%d bytes) does not match with master struct size(%d bytes). Make sure you're using latest version of ScueDK.\n",msg.data.size(),sizeof (data));
-    }
   }
 };
 
