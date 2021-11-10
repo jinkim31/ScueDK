@@ -44,26 +44,26 @@ enum Flippers
  * R : READ
  **********************************************************************************************************************/
 
-typedef struct _PID
+typedef struct _Pid
 {
     float   kP;                         //SR PID kP
     float   kI;                         //SR PID kI
     float   kD;                         //SR PID kD
     float   target;                     //SO 목표값
     float   actual;                     //RO 실제값
-}PID;
+}Pid;
 
 typedef struct _Flipper
 {
-    PID     posPid;                     //SR 위치 PID
-    PID     velPid;                     //SR 속도 PID
-    PID     curPid;                     //SR 전류 PID
+    Pid     posPid;                     //SR 위치 PID
+    Pid     velPid;                     //SR 속도 PID
+    Pid     curPid;                     //SR 전류 PID
     bool    inverted;                   //SR 위치 반전
 }Flipper;
 
 typedef struct _Track
 {
-    PID     velPid;                     //SR 트랙 속도 PID
+    Pid     velPid;                     //SR 트랙 속도 PID
     float   encoderReading;             //RO 누적 엔코더 각도. 오버플로우 없도록 주의 (rad)
 }Track;
 
@@ -108,7 +108,7 @@ typedef struct _Master
  * Implement them in "struct.c".
  **********************************************************************************************************************/
 
-void initPID(PID* pid);
+void initPid(Pid* pid);
 void initMotorController(MotorController *s);
 void initManipulator(Manipulator *s);
 void initMasterTweak(MasterTweak *s);

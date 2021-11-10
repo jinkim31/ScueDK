@@ -4,7 +4,7 @@
  * Implement init functions here.
  **********************************************************************************************************************/
 
-void initPID(PID *pid)
+void initPID(Pid *pid)
 {
     pid->kD = 0.0f;
     pid->kI = 0.0f;
