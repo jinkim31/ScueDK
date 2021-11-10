@@ -58,9 +58,9 @@ public:
 
   Scue(ros::NodeHandle& nodeHandle)
   {
-    this->nodeHandle = &nodeHandle;
-    setPub = this->nodeHandle->template advertise<std_msgs::ByteMultiArray>("scue_set",100);
-    scueReadSub = nodeHandle.subscribe("scue_read",100, &Scue::scueReadCallback, this);
+      this->nodeHandle = &nodeHandle;
+      setPub = this->nodeHandle->template advertise<std_msgs::ByteMultiArray>("scue_set",100);
+      scueReadSub = nodeHandle.subscribe("scue_read",100, &Scue::scueReadCallback, this);
       ready = false;
   }
 
