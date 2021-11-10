@@ -21,7 +21,8 @@
 #include "../../structs/structs.h"
 
 using namespace std;
-namespace scue{
+namespace scue
+{
 
 class Scue
 {

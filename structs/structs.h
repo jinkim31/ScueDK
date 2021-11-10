@@ -39,9 +39,10 @@ typedef struct _PID
 
 typedef struct _Flipper
 {
-    PID     posPid;                     //SR 플리퍼A 위치 PID
-    PID     velPid;                     //SR 플리퍼A 속도 PID
-    PID     curPid;                     //SR 플리퍼A 전류 PID
+    PID     posPid;                     //SR 위치 PID
+    PID     velPid;                     //SR 속도 PID
+    PID     curPid;                     //SR 전류 PID
+    bool    inverted;                   //SR 위치 반전
 }Flipper;
 
 typedef struct _Track
@@ -56,20 +57,20 @@ typedef struct _Track
  * R : READ
  **********************************************************************************************************************/
 
-typedef struct _MotorController         //flipper & track motor controller [hardware slave]
+typedef struct _MotorController         //[hardware slave] flipper & track motor controller
 {
     Flipper flippers[2];                //SR 플리퍼 두개
     Track   track;                      //SR 트랙
 }MotorController;
 
-typedef struct _Manipulator             //manipulator [simulated slave]
+typedef struct _Manipulator             //[simulated slave] manipulator
 {
 	float   targetPosition[6];          //SO 가장 아래축부터 6축의 각도 목표값 (rad)
     float   targetAcceleration[6];      //SO 가장 아래축부터 6축의 각가속도 목표값 (rad/s^2)
     float   gripperTargetCurrent;       //SO 그리퍼 전류제어 목표값(A)
 }Manipulator;
 
-typedef struct _MasterTweak             //option tweaks and init triggers for master board [simulated slave]
+typedef struct _MasterTweak             //[simulated slave] option tweaks and init triggers for master board
 {
 	bool    initManipulatorTrigger;     //SR 매니퓰레이터 초기화 트리거
 	bool    initFlipperTrigger;         //SR 플리퍼 초기화 트리거

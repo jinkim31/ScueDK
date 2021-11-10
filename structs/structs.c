@@ -22,6 +22,7 @@ void initMotorController(MotorController *s)
         initPID(&f->posPid);
         initPID(&f->velPid);
         initPID(&f->curPid);
+        f->inverted = false;
     }
 
     Track* t = &s->track;
