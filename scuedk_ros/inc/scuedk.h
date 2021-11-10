@@ -1,6 +1,6 @@
 
 /*
- * ScueDK 2.1.1 by Jin Kim 2021 @ Robit
+ * ScueDK by Jin Kim 2021 @ Robit
  *
  *
  *
@@ -33,7 +33,7 @@ public:
         vector<uint8_t> data;
     }DataChange;
 private:
-    bool ready;
+    bool readReady;
     ros::NodeHandle* nodeHandle;
     vector<DataChange> dataChangeList;
     ros::Publisher setPub;
@@ -46,7 +46,7 @@ private:
         {
             memcpy(&data, msg.data.data(), sizeof (data));
             if(cycleCallback) cycleCallback();
-            ready = true;
+            readReady = true;
         }
         else
         {
@@ -61,7 +61,7 @@ public:
       this->nodeHandle = &nodeHandle;
       setPub = this->nodeHandle->template advertise<std_msgs::ByteMultiArray>("scue_set",100);
       scueReadSub = nodeHandle.subscribe("scue_read",100, &Scue::scueReadCallback, this);
-      ready = false;
+      readReady = false;
   }
 
   Master ref;
@@ -160,9 +160,9 @@ public:
       this->cycleCallback = func;
   }
 
-  bool isReady()
+  bool isReadReady()
   {
-      return ready;
+      return readReady;
   }
   virtual ~Scue()
   {
