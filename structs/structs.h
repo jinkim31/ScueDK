@@ -8,7 +8,7 @@
  *
  * -- !!DISCLAIMERS!! --
  * 1. WRITE IN STANDARD C. IT WON'T BE COMPATIBLE WITH SLAVE SERIAL_LINE LIBRARY(WRITTEN IN C) OTHERWISE.
- * 2. DEFINE STRUCT FOR EACH SLAVE TYPE(motor driver, manipulator etc.). DEFINE A "ASTER(WITH ITS NAME "MASTER") STRUCT THAT HAS SLAVE STRUCTS DEDICATED TO EACH HARDWARE/SIMULATED SLAVE.
+ * 2. DEFINE STRUCT FOR EACH SLAVE TYPE(motor driver, manipulator etc.). DEFINE A "MASTER"(WITH ITS NAME "Master") STRUCT THAT HAS SLAVE STRUCTS DEDICATED TO EACH HARDWARE/SIMULATED SLAVE.
  * 3. ENCAPSULATE EVERY VARIABLE INTO A STRUCT. 'STRAY' ONES MIGHT BE HARD TO SPECIFY THEIR ADDRESSES.
  */
 
@@ -22,36 +22,62 @@ namespace scue {
 #include "stdbool.h"
 #endif
 
-/*
+/***********************************************************************************************************************
+ * ABSTRACTION STRUCTS
+ * S : SET
+ * R : READ
+ **********************************************************************************************************************/
+
+typedef struct _PID
+{
+    float   kP;                         //SR PID kP
+    float   kI;                         //SR PID kI
+    float   kD;                         //SR PID kD
+    float   target;                     //SO 목표값
+    float   actual;                     //RO 실제값
+}PID;
+
+typedef struct _Flipper
+{
+    PID     posPid;                     //SR 플리퍼A 위치 PID
+    PID     velPid;                     //SR 플리퍼A 속도 PID
+    PID     curPid;                     //SR 플리퍼A 전류 PID
+}Flipper;
+
+typedef struct _Track
+{
+    PID     velPid;                     //SR 트랙 속도 PID
+    float   encoderReading;             //RO 누적 엔코더 각도. 오버플로우 없도록 주의 (rad)
+}Track;
+
+/***********************************************************************************************************************
  * SLAVE STRUCTS
  * S : SET
  * R : READ
- */
+ **********************************************************************************************************************/
 
-typedef struct _MotorController         //flipper, track motor controller. hardware slave
+typedef struct _MotorController         //flipper & track motor controller [hardware slave]
 {
-	float   trackTargetSpeed;           //S 회전속도 (rad/s)
-	float   flipperATargetAngle;        //S 플리퍼A 각도 (rad)
-	float   flipperBTargetAngle;        //S 플리퍼B 각도 (rad)
-    double  encoderReading;             //R 누적 엔코더 각도. 오버플로우 없도록 주의 (rad)
+    Flipper flippers[2];                //SR 플리퍼 두개
+    Track   track;                      //SR 트랙
 }MotorController;
 
-typedef struct _Manipulator             //manipulator. simulated slave
+typedef struct _Manipulator             //manipulator [simulated slave]
 {
-	float   targetPosition[6];          //S 가장 아래축부터 6축의 각도 목표값 (rad)
-    float   targetAcceleration[6];      //S 가장 아래축부터 6축의 각가속도 목표값 (rad/s^2)
-    float   gripperTargetCurrent;       //S 그리퍼 전류제어 목표값(A)
+	float   targetPosition[6];          //SO 가장 아래축부터 6축의 각도 목표값 (rad)
+    float   targetAcceleration[6];      //SO 가장 아래축부터 6축의 각가속도 목표값 (rad/s^2)
+    float   gripperTargetCurrent;       //SO 그리퍼 전류제어 목표값(A)
 }Manipulator;
 
-typedef struct _MasterTweak             //option tweaks and init triggers for master board. simulated slave
+typedef struct _MasterTweak             //option tweaks and init triggers for master board [simulated slave]
 {
-	bool    initManipulatorTrigger;     //매니퓰레이터 초기화 트리거
-	bool    initFlipperTrigger;         //플리퍼 초기화 트리거
+	bool    initManipulatorTrigger;     //SR 매니퓰레이터 초기화 트리거
+	bool    initFlipperTrigger;         //SR 플리퍼 초기화 트리거
 }MasterTweak;
 
-/*
+/***********************************************************************************************************************
  * MASTER STRUCT
- */
+ **********************************************************************************************************************/
 
 typedef struct _Master
 {
@@ -61,11 +87,12 @@ typedef struct _Master
 	MasterTweak masterTweak;
 }Master;
 
-/*
+/***********************************************************************************************************************
  * INIT FUNCTIONS
  * Implement them in "struct.c".
- */
+ **********************************************************************************************************************/
 
+void initPID(PID* pid);
 void initMotorController(MotorController *s);
 void initManipulator(Manipulator *s);
 void initMasterTweak(MasterTweak *s);

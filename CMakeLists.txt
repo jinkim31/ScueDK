@@ -26,7 +26,7 @@ add_library(${PROJECT_NAME}
   scuedk_ros/src/scuedk.cpp
   structs/structs.c
 )
-target_link_libraries(serial_line ${catkin_LIBRARIES} serial)
+target_link_libraries(serial_line ${catkin_LIBRARIES})
 target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
 install(
   TARGETS ${PROJECT_NAME}
