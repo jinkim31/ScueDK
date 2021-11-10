@@ -33,7 +33,7 @@ public:
         vector<uint8_t> data;
     }DataChange;
 private:
-    bool isReady;
+    bool ready;
     ros::NodeHandle* nodeHandle;
     vector<DataChange> dataChangeList;
     ros::Publisher setPub;
@@ -46,7 +46,7 @@ private:
         {
             memcpy(&data, msg.data.data(), sizeof (data));
             if(cycleCallback) cycleCallback();
-            isReady = true;
+            ready = true;
         }
         else
         {
@@ -61,7 +61,7 @@ public:
     this->nodeHandle = &nodeHandle;
     setPub = this->nodeHandle->template advertise<std_msgs::ByteMultiArray>("scue_set",100);
     scueReadSub = nodeHandle.subscribe("scue_read",100, &Scue::scueReadCallback, this);
-    isReady = false;
+      ready = false;
   }
 
   Master ref;
@@ -160,6 +160,10 @@ public:
       this->cycleCallback = func;
   }
 
+  bool isReady()
+  {
+      return ready;
+  }
   virtual ~Scue()
   {
   }
