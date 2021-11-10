@@ -48,8 +48,7 @@ void initMasterTweak(MasterTweak* s)
 
 void initMaster(Master* s)
 {
-    initMotorController(&s->motorControllerA);
-    initMotorController(&s->motorControllerB);
+    for(int i=0; i<2; i++) initMotorController(&s->motorControllers[i]);
 	initManipulator(&s->manipulator);
 	initMasterTweak(&s->masterTweak);
 }

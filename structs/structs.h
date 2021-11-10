@@ -65,7 +65,7 @@ typedef struct _MotorController         //[hardware slave] flipper & track motor
 
 typedef struct _Manipulator             //[simulated slave] manipulator
 {
-	float   targetPosition[6];          //SO 가장 아래축부터 6축의 각도 목표값 (rad)
+    float   targetPosition[6];          //SO 가장 아래축부터 6축의 각도 목표값 (rad)
     float   targetAcceleration[6];      //SO 가장 아래축부터 6축의 각가속도 목표값 (rad/s^2)
     float   gripperTargetCurrent;       //SO 그리퍼 전류제어 목표값(A)
 }Manipulator;
@@ -82,8 +82,7 @@ typedef struct _MasterTweak             //[simulated slave] option tweaks and in
 
 typedef struct _Master
 {
-	MotorController motorControllerA;
-	MotorController motorControllerB;
+	MotorController motorControllers[2];
 	Manipulator manipulator;
 	MasterTweak masterTweak;
 }Master;
