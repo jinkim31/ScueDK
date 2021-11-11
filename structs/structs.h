@@ -26,16 +26,18 @@ namespace scue {
  * ENUMS
  **********************************************************************************************************************/
 
-enum Controllers
+enum Tracks
 {
-    CONTROLLER_R,
-    CONTROLLER_L
+    TRACK_R,
+    TRACK_L
 };
 
 enum Flippers
 {
-    FLIPPER_F,
-    FLIPPER_B,
+    FLIPPER_FL,
+    FLIPPER_FR,
+    FLIPPER_BL,
+    FLIPPER_BR
 };
 
 /***********************************************************************************************************************
@@ -44,7 +46,7 @@ enum Flippers
  * R : READ
  **********************************************************************************************************************/
 
-typedef struct _Pid
+typedef struct Pid
 {
     float   kP;                         //SR PID kP
     float   kI;                         //SR PID kI
@@ -53,7 +55,7 @@ typedef struct _Pid
     float   actual;                     //RO 실제값
 }Pid;
 
-typedef struct _Flipper
+typedef struct Flipper
 {
     Pid     posPid;                     //SR 위치 PID
     Pid     velPid;                     //SR 속도 PID
@@ -61,7 +63,7 @@ typedef struct _Flipper
     bool    inverted;                   //SR 위치 반전
 }Flipper;
 
-typedef struct _Track
+typedef struct Track
 {
     Pid     velPid;                     //SR 트랙 속도 PID
     float   encoderReading;             //RO 누적 엔코더 각도. 오버플로우 없도록 주의 (rad)
@@ -73,20 +75,24 @@ typedef struct _Track
  * R : READ
  **********************************************************************************************************************/
 
-typedef struct _MotorController         //[hardware slave] flipper & track motor controller
+typedef struct FlipperController        //[hardware slave] flipper & track motor controller
 {
-    Flipper flippers[2];                //SR 플리퍼 두개
-    Track   track;                      //SR 트랙
-}MotorController;
+    Flipper flippers[4];                //SR 플리퍼 4개
+}FlipperController;
 
-typedef struct _Manipulator             //[simulated slave] manipulator
+typedef struct TrackController
+{
+    Track tracks[2];                    //SR 트랙 2개
+}TrackController;
+
+typedef struct Manipulator              //[simulated slave] manipulator
 {
     float   targetPosition[6];          //SO 가장 아래축부터 6축의 각도 목표값 (rad)
     float   targetAcceleration[6];      //SO 가장 아래축부터 6축의 각가속도 목표값 (rad/s^2)
     float   gripperTargetCurrent;       //SO 그리퍼 전류제어 목표값(A)
 }Manipulator;
 
-typedef struct _MasterTweak             //[simulated slave] option tweaks and init triggers for master board
+typedef struct MasterTweak              //[simulated slave] option tweaks and init triggers for master board
 {
 	bool    initManipulatorTrigger;     //SR 매니퓰레이터 초기화 트리거
 	bool    initFlipperTrigger;         //SR 플리퍼 초기화 트리거
@@ -96,9 +102,10 @@ typedef struct _MasterTweak             //[simulated slave] option tweaks and in
  * MASTER STRUCT
  **********************************************************************************************************************/
 
-typedef struct _Master
+typedef struct Master
 {
-	MotorController motorControllers[2];
+	FlipperController flipperController;
+    TrackController trackController;
 	Manipulator manipulator;
 	MasterTweak masterTweak;
 }Master;
@@ -109,7 +116,8 @@ typedef struct _Master
  **********************************************************************************************************************/
 
 void initPid(Pid* pid);
-void initMotorController(MotorController *s);
+void initFlipperController(FlipperController* s);
+void initTrackController(TrackController* s);
 void initManipulator(Manipulator *s);
 void initMasterTweak(MasterTweak *s);
 void initMaster(Master *s);
