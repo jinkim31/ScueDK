@@ -36,7 +36,7 @@ public:
 		Slave(uint8_t id, int headAdr, int size, bool simulatedSlave=false) : id(id), headAdr(headAdr), size(size), simulatedSlave(simulatedSlave){}
 		~Slave(){}
 
-		bool bears(int globalAdr){return (headAdr <= globalAdr && globalAdr < headAdr+size);}
+		bool bears(uint16_t globalAdr){return (headAdr <= globalAdr && globalAdr < headAdr+size);}
 		bool isSimulated(){return simulatedSlave;}
 		uint8_t getId(){return id;}
 		unsigned int getHeadAdr(){return headAdr;}
@@ -46,14 +46,14 @@ public:
 
 	typedef struct _GlobalDataChange
 	{
-		int address;
+		uint16_t address;
 		vector<uint8_t> data;
 	}GlobalDataChange;
 
 	typedef struct _LocalDataChange
 	{
 		int id;
-		int address;
+		uint16_t address;
 		Slave *slave;
 		vector<uint8_t> data;
 	}LocalDataChange;
@@ -152,7 +152,7 @@ private:
 
 		InjectState state = ADDRESS_1;
 
-		uint8_t address;
+		uint16_t address;
 		int size, valueByteIndex = 0;
 		uint8_t valueByteArray[16];
 
@@ -168,7 +168,7 @@ private:
 			}
 			case ADDRESS_2:
 			{
-				address = address | (byte<<8);
+				address = (byte<<8) | address;
 				state = SIZE;
 				break;
 			}
