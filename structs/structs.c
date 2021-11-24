@@ -9,6 +9,7 @@ void initPid(Pid *pid)
     pid->kD = 0.0f;
     pid->kI = 0.0f;
     pid->kD = 0.0f;
+    pid->errorsumLimit = 0.0f;
     pid->target = 0.0f;
     pid->actual = 0.0f;
 }
@@ -23,6 +24,7 @@ void initFlipperController(FlipperController *s)
         initPid(&f->curPid);
         f->inverted = false;
     }
+    &s->initTrigger = false;
 }
 
 void initTrackController(TrackController *s)
@@ -33,6 +35,7 @@ void initTrackController(TrackController *s)
         initPid(&t->velPid);
         t->encoderReading = 0.0f;
     }
+    &s->initTrigger = false;
 }
 
 void initManipulator(Manipulator* s)

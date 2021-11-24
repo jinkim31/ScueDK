@@ -51,6 +51,7 @@ typedef struct Pid
     float   kP;                         //SR PID kP
     float   kI;                         //SR PID kI
     float   kD;                         //SR PID kD
+    float   errorsumLimit;              //SR PID errrosumLimit
     float   target;                     //SO 목표값
     float   actual;                     //RO 실제값
 }Pid;
@@ -62,6 +63,8 @@ typedef struct Flipper
     Pid     curPid;                     //SR 전류 PID
     bool    inverted;                   //SR 위치 반전
 }Flipper;
+
+
 
 typedef struct Track
 {
@@ -78,11 +81,13 @@ typedef struct Track
 typedef struct FlipperController        //[hardware slave] flipper & track motor controller
 {
     Flipper flippers[4];                //SR 플리퍼 4개
+    bool initTrigger;                  //초기화 트리거
 }FlipperController;
 
 typedef struct TrackController
 {
     Track tracks[2];                    //SR 트랙 2개
+    bool initTrigger;                  //초기화 트리거
 }TrackController;
 
 typedef struct Manipulator              //[simulated slave] manipulator

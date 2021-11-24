@@ -11,6 +11,7 @@
 #ifndef SERIALLINE_INC_SERIAL_LINE_H_
 #define SERIALLINE_INC_SERIAL_LINE_H_
 #include "main.h"
+#include <string.h>
 
 #define RX_BUFFER_SIZE 300
 
