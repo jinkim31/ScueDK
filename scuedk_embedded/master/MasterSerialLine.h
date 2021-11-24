@@ -382,13 +382,13 @@ public:
 			int slaveIndex = slaveList.indexOfId(slavePacketInfo.id);
 			if(slaveIndex == -1) return;//no slave of the id found.
 			int size = slaveList[slaveIndex].getSize();
+			int vs=slavePacketInfo.parameter.size();
 			if(slaveList[slaveIndex].getSize() == slavePacketInfo.parameter.size())
 			{
 				memcpy(masterPtr+slaveList[slaveIndex].getHeadAdr(), &slavePacketInfo.parameter[0], slavePacketInfo.parameter.size());
 			}
 			else
 			{
-				printf("asd");
 			}
 			stateManager->setState(CommStateManager::REQUEST);
 		}

@@ -24,7 +24,7 @@ void initFlipperController(FlipperController *s)
         initPid(&f->curPid);
         f->inverted = false;
     }
-    &s->initTrigger = false;
+    s->initTrigger = false;
 }
 
 void initTrackController(TrackController *s)
@@ -35,7 +35,7 @@ void initTrackController(TrackController *s)
         initPid(&t->velPid);
         t->encoderReading = 0.0f;
     }
-    &s->initTrigger = false;
+    s->initTrigger = false;
 }
 
 void initManipulator(Manipulator* s)
