@@ -46,12 +46,17 @@ void initManipulator(Manipulator* s)
 		s->targetAcceleration[i] = 10.0f;
 	}
 	s->gripperTargetCurrent = 0.0f;
+
+	s->targetPosition[1] = -30.0f;
+	s->targetPosition[2] = 30.0f;
 }
 
 void initMasterTweak(MasterTweak* s)
 {
 	s->initManipulatorTrigger;
 	s->initFlipperTrigger;
+	s->boardVoltage = 0.0f;
+	s->motorVoltage = 0.0f;
 }
 
 void initMaster(Master* s)
