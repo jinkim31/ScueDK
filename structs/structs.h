@@ -82,6 +82,7 @@ typedef struct FlipperController        //[hardware slave] flipper & track motor
 {
     Flipper flippers[4];                //SR 플리퍼 4개
     bool initTrigger;                  //초기화 트리거
+    bool SemiAuto;
 }FlipperController;
 
 typedef struct TrackController

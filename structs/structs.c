@@ -25,6 +25,7 @@ void initFlipperController(FlipperController *s)
         f->inverted = false;
     }
     s->initTrigger = false;
+    s->SemiAuto = false;
 }
 
 void initTrackController(TrackController *s)
