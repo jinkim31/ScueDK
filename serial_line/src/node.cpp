@@ -175,6 +175,8 @@ void Node::serialReadThread()
             cerr << "[WARN] Port disconnected (" << e.what() << ")." << endl;
             serial.close();
         }
+
+        this_thread::sleep_for(chrono::milliseconds(1));
     }
 }
 

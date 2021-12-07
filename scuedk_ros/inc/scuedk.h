@@ -27,6 +27,19 @@ namespace scue
 class Scue
 {
 public:
+    class CycleListener
+    {
+    private:
+        function<void(void)> handler;
+    public:
+        explicit CycleListener(function<void(void)> handler) : handler(handler)
+        {
+        }
+        void notify()
+        {
+            handler();
+        }
+    };
     typedef struct
     {
         int address;
@@ -39,14 +52,23 @@ private:
     ros::Publisher setPub;
     ros::Subscriber scueReadSub;
     Master data;
-    function<void(void)>cycleCallback;
+    double timePrevCycle;
+    double timeDelta;
+    vector<shared_ptr<CycleListener>> cycleListeners;
+
     void scueReadCallback(const std_msgs::ByteMultiArray &msg)
     {
         if(msg.data.size() == sizeof (data))
         {
             memcpy(&data, msg.data.data(), sizeof (data));
-            if(cycleCallback) cycleCallback();
             readReady = true;
+
+            // get timeDelta
+            double timeNow = ros::Time::now().toSec();
+            if(timePrevCycle != 0.0) timeDelta = timeNow - timePrevCycle;
+            timePrevCycle = timeNow;
+
+            for(int i=0;i <cycleListeners.size(); i++) cycleListeners[i]->notify();
         }
         else
         {
@@ -62,6 +84,8 @@ public:
       setPub = this->nodeHandle->template advertise<std_msgs::ByteMultiArray>("scue_set",100);
       scueReadSub = nodeHandle.subscribe("scue_read",100, &Scue::scueReadCallback, this);
       readReady = false;
+      timePrevCycle = 0.0;
+      timeDelta = 0.0;
   }
 
   Master ref;
@@ -151,18 +175,22 @@ public:
       for(uint8_t byte : d.data) msg.data.push_back(byte);
       setPub.publish(msg);
     }
-
     dataChangeList.clear();
   }
 
-  void setCycleCallback(function<void(void)> func)
+  void addCycleListener(shared_ptr<CycleListener> listener)
   {
-      this->cycleCallback = func;
+      cycleListeners.push_back(listener);
   }
 
   bool isReadReady()
   {
       return readReady;
+  }
+
+  double getTimeDelta()
+  {
+      return timeDelta;
   }
   virtual ~Scue()
   {
