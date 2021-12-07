@@ -54,8 +54,8 @@ void initManipulator(Manipulator* s)
 
 void initMasterTweak(MasterTweak* s)
 {
-	s->initManipulatorTrigger;
-	s->initFlipperTrigger;
+	s->initManipulatorTrigger = false;
+	s->initFlipperTrigger = false;
 	s->boardVoltage = 0.0f;
 	s->motorVoltage = 0.0f;
 }
