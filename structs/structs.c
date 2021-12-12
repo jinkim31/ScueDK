@@ -58,6 +58,7 @@ void initMasterTweak(MasterTweak* s)
 	s->initFlipperTrigger = false;
 	s->boardVoltage = 0.0f;
 	s->motorVoltage = 0.0f;
+    s->shutdown = false;
 }
 
 void initMaster(Master* s)

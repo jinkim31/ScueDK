@@ -102,8 +102,9 @@ typedef struct MasterTweak              //[simulated slave] option tweaks and in
 {
 	bool    initManipulatorTrigger;     //SR 매니퓰레이터 초기화 트리거
 	bool    initFlipperTrigger;         //SR 플리퍼 초기화 트리거
-	float boardVoltage;
-	float motorVoltage;
+    bool    shutdown;
+	float   boardVoltage;
+	float   motorVoltage;
 }MasterTweak;
 
 /***********************************************************************************************************************
